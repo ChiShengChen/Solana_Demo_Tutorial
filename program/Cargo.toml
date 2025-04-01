@@ -1,0 +1,11 @@
+[package]
+name = "solana-hello-world"
+version = "0.1.0"
+edition = "2018"
+description = "A simple Solana program"
+
+[dependencies]
+solana-program = "~1.14.0"
+
+[lib]
+crate-type = ["cdylib", "lib"] 
