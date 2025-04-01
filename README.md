@@ -131,6 +131,8 @@ Here are the key concepts of how the Rust program and TypeScript client interact
 
 4. **Account List**:
    The program accesses the list of transmitted accounts via the `AccountInfo` parameter, allowing it to read or modify their data.
+## Screen Shot
+<img width="683" alt="image" src="https://github.com/user-attachments/assets/a2328e3e-02b0-402d-ac44-f91079ed1b0c" />
 
 ## Further Learning
 
