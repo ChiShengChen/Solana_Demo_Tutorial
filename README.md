@@ -1,79 +1,138 @@
-# Solana 簡單範例專案
+# Simple Solana Demo Project
 
-這是一個基本的 Solana 開發範例，展示了使用 Rust 編寫 Solana 程序，並用 TypeScript 與之互動的方法。程序已部署在 Solana 的 devnet 上。
+This is a basic Solana development example that shows how to write Solana programs in Rust and interact with them using TypeScript. The program has been deployed on Solana's devnet.
 
-## 專案結構
+## Project Structure
 
 ```
 .
-├── program/             # Rust 程序（智能合約）
-│   ├── src/             # 源代碼
-│   │   ├── lib.rs       # 主文件
-│   │   └── entrypoint.rs # 程序入口點
-│   └── Cargo.toml       # Rust 相依性配置
-└── client/             # TypeScript 客戶端
-    ├── src/             # 源代碼
-    │   └── index.ts     # 客戶端代碼
-    ├── package.json     # Node.js 相依性配置
-    └── tsconfig.json    # TypeScript 配置
+├── program/             # Rust program (smart contract)
+│   ├── src/             # Source code
+│   │   ├── lib.rs       # Main file
+│   │   └── entrypoint.rs # Program entry point
+│   └── Cargo.toml       # Rust dependency configuration
+└── client/             # TypeScript client
+    ├── src/             # Source code
+    │   └── index.ts     # Client code
+    ├── package.json     # Node.js dependency configuration
+    └── tsconfig.json    # TypeScript configuration
 ```
 
-## 已部署的程序
+## Deployed Program
 
-程序 ID: `4BVd3iznNQg2Spju9tU2QzQB1aVzDSBR1ZQ1yj2Cf2of`
+Program ID: `4BVd3iznNQg2Spju9tU2QzQB1aVzDSBR1ZQ1yj2Cf2of`
 
-這個程序已經部署到 Solana 的 devnet 網絡，您可以直接使用客戶端與它互動。
+This program has been deployed to Solana's devnet network. You can interact with it directly using the client.
 
-## 程序功能
+## Environment Setup and Compilation
 
-這是一個簡單的演示程序，它會：
+### Prerequisites
 
-1. 打印出 "Hello, Solana! 你好，索拉納！"
-2. 顯示程序 ID
-3. 列出所有傳入的賬戶
-4. 讀取並顯示任何傳入的指令數據
+1. Install Solana CLI:
+```bash
+sh -c "$(curl -sSfL https://release.solana.com/v1.14.29/install)"
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+```
 
-## 客戶端功能
+2. Install Rust and Cargo:
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+rustup component add rustfmt
+rustup target add bpfel-unknown-unknown
+```
 
-TypeScript 客戶端展示了如何：
+3. Install Node.js and npm:
+```bash
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
 
-1. 連接到 Solana devnet
-2. 加載或創建密鑰對
-3. 構建交易並附加指令
-4. 發送交易到我們的程序
-5. 檢索交易日誌和結果
+### Compiling and Deploying the Rust Program
 
-## 運行客戶端
+1. Configure Solana network:
+```bash
+solana config set --url https://api.devnet.solana.com
+```
+
+2. Create a wallet (if you haven't already):
+```bash
+solana-keygen new
+```
+
+3. Get test SOL:
+```bash
+solana airdrop 2
+```
+
+4. Compile the program:
+```bash
+cd program
+cargo build-bpf
+```
+
+5. Deploy the program:
+```bash
+solana program deploy target/deploy/solana_hello_world.so
+```
+After successful deployment, you'll receive a program ID. Make sure to save it.
+
+6. Update the program ID in the client (if you deployed a new program):
+Edit the `client/src/index.ts` file and update the `PROGRAM_ID` variable:
+```typescript
+const PROGRAM_ID = new PublicKey('your-new-program-id');
+```
+
+## Program Features
+
+This is a simple demo program that:
+
+1. Prints "Hello, Solana! 你好，索拉納！"
+2. Shows the program ID
+3. Lists all incoming accounts
+4. Reads and displays any instruction data sent to it
+
+## Client Features
+
+The TypeScript client shows how to:
+
+1. Connect to Solana devnet
+2. Load or create keypairs
+3. Build transactions and attach instructions
+4. Send transactions to our program
+5. Retrieve transaction logs and results
+
+## Running the Client
 
 ```bash
-# 進入客戶端目錄
+# Go to the client directory
 cd client
 
-# 安裝依賴
+# Install dependencies
 npm install
 
-# 運行客戶端
+# Run the client
 npm start
 ```
 
-## Rust 和 TypeScript 互動原理
+## How Rust and TypeScript Interact
 
-以下是 Rust 程序和 TypeScript 客戶端交互的關鍵概念：
+Here are the key concepts of how the Rust program and TypeScript client interact:
 
-1. **程序部署**：
-   Rust 程序經過編譯後，被部署到 Solana 網絡，獲得一個唯一的程序 ID。
+1. **Program Deployment**:
+   The Rust program is compiled and deployed to the Solana network, receiving a unique program ID.
 
-2. **客戶端調用**：
-   TypeScript 客戶端構建交易，指定要調用的程序 ID、需要的賬戶和指令數據。
+2. **Client Calls**:
+   The TypeScript client builds a transaction that specifies the program ID to call, the accounts needed, and the instruction data.
 
-3. **數據傳遞**：
-   - 客戶端 → 程序：通過 `TransactionInstruction` 的 `data` 字段
-   - 程序 → 客戶端：通過程序日誌 (`msg!` 宏)
+3. **Data Transfer**:
+   - Client → Program: Through the `data` field of `TransactionInstruction`
+   - Program → Client: Through program logs (the `msg!` macro)
 
-4. **賬戶列表**：
-   程序透過 `AccountInfo` 參數訪問傳入的賬戶列表，可以讀取或修改其數據。
+4. **Account List**:
+   The program accesses the list of transmitted accounts via the `AccountInfo` parameter, allowing it to read or modify their data.
 
-## 進一步學習
+## Further Learning
 
-- [Solana 官方文檔](https://docs.solana.com/)
+- [Solana Official Documentation](https://docs.solana.com/)
 - [Solana Cookbook](https://solanacookbook.com/) 
